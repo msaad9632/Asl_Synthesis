@@ -301,11 +301,20 @@ function setStatus(t) { if (status) status.textContent = t; }
 
 fetch('/anim/index.json').then((r) => r.json()).then((idx) => {
   AvatarAPI.signs = idx.signs;
+  // Stage 3: ?sign=SIGN_ID picks the initial clip (case-insensitive); falls back to the first sign.
+  const qs = new URLSearchParams(location.search);
+  const want = (qs.get('sign') || '').toUpperCase();
+  const initial = idx.signs.includes(want) ? want : idx.signs[0];
   if (sel) {
-    idx.signs.forEach((s) => { const o = document.createElement('option'); o.value = o.textContent = s; sel.appendChild(o); });
+    idx.signs.forEach((s) => {
+      const o = document.createElement('option'); o.value = o.textContent = s;
+      if (s === initial) o.selected = true;
+      sel.appendChild(o);
+    });
     sel.addEventListener('change', () => { AvatarAPI.prepare(sel.value).then(() => { frame = 0; }); });
   }
-  AvatarAPI.prepare(idx.signs[0]);
+  // Loop continuously by default so a refresh immediately shows the (updated) motion.
+  AvatarAPI.prepare(initial).then(() => { frame = 0; playing = true; });
 });
 
 document.getElementById('play')?.addEventListener('click', () => { playing = !playing; });
