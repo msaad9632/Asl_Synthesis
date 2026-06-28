@@ -5,6 +5,11 @@ node_modules/
 frames/
 reference_clips/
 
+# --- Stage 2 inputs + intermediates (regenerate from footage; schema/signs/ IS committed) ---
+footage/          # OUR-recorded clips only — never commit third-party / restricted video
+landmarks/        # capture_landmarks.py output
+keyframes/        # extract_keyframes.py output
+
 # --- Logs ---
 *.log
 

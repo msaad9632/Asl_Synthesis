@@ -3,84 +3,84 @@
 **Date/Time**: 2026-06-29 (Claude Code, Opus session)
 **Who was working**: Person A (Saad / msaad9632)
 
-## ⚠️ READ FIRST — how this diverged from the combined prompt
-We have a **working signing avatar**, but we got there by a **different path** than
-`claude_code_combined_pipeline_prompt.md` describes. Know this before continuing:
+## ⚠️ READ FIRST — how the two halves fit together
+We now have BOTH halves of the pipeline, and they **compose** rather than compete:
 
-1. **Avatar = `readyplayer.me.glb`** (Ready Player Me, the file Saad uploaded) — *not* Quaternius and
-   *not* `robot.blend`. It passed Stage 0: full skeleton, 67 joints, 4-joint finger chains, separate
-   Shoulder/Arm/ForeArm/Hand per side.
-2. **Schema is PROCEDURAL, not MediaPipe-from-footage (Stage 2 divergence).** We did **not** capture
-   recorded footage. Instead we generate the per-sign animation tracks from the existing **rule-based
-   recognition schema** in the companion repo `E:\ASL_Game` (`core/synthesis3d.py`). This reuses one
-   schema for both recognition and synthesis (single source of truth), needs no footage, and touches
-   **zero** restricted datasets. The MediaPipe-footage path is still open if we want higher fidelity.
-3. **Two folders, only one is on GitHub:**
-   - `E:\ASL_Game` — recognition game (Python). On GitHub: `msaad9632/ASL_Game`. Holds the schema +
-     the 3D exporter (`core/synthesis3d.py`, `tools/export_avatar_anim.py`, `tools/encode_avatar_clips.py`).
-   - `D:\asl-synthesis` — the avatar viewer + GLB + capture pipeline (this folder). **NOT a git repo
-     yet** → see Blockers.
+- **Stage 2 (NEW, this session)** = MediaPipe-as-authoring-tool. It turns OUR recorded footage into
+  **schema parameters** (handshape, location anchor/offset, movement type/threshold, orientation).
+  It deliberately emits *parameters*, never a per-frame rotation stream — exactly what
+  `claude_code_combined_pipeline_prompt.md` specifies.
+- **Procedural engine (EXISTING)** = `E:/ASL_Game/core/synthesis3d.py` → `D:/asl-synthesis/avatar_app.js`.
+  It **renders** those parameters on the Ready Player Me avatar (analytical IK + finger curl/adduction).
+
+So footage **calibrates the numbers**; the procedural renderer **animates them**. The earlier
+procedural work is not thrown away — Stage 2 feeds it.
 
 ## What was completed this session
-- **Stage 0** confirmed RPM rig (bones `{Left,Right}{Shoulder,Arm,ForeArm,Hand}` + `…{Thumb,Index,Middle,Ring,Pinky}{1..4}`).
-- Built `D:\asl-synthesis\avatar_app.js` — the procedural driver:
-  - **Arms**: analytical 2-bone IK aims `…Arm`/`…ForeArm` so `…Hand` hits a body-relative target.
-  - **Fingers**: flex about the **computed knuckle line** (index1→pinky1) **+ adduction** about the
-    palm normal to close the RPM bind-pose finger fan (this fixed the "constant gaps between fingers").
-    Per-finger `spread` supports the V handshape.
-  - **Palm**: `orientPalm` wrist-roll; `palmFace` (+ `palmFaceN` for the non-dominant hand).
-  - **Thumb**: left at bind (curling it about the finger axis made it jut out like a pointing finger).
-  - Off-hand rests low at the side on one-handed signs.
-- `viewer.html` (Stage 3 local preview: dropdown + play/loop) + `window.AvatarAPI` for capture.
-- `capture.mjs` — headless render via **system Edge** (Playwright's bundled Chromium failed to install).
-  Modes: default(all) / `--probe SIGN` / `--cal` / `--handcal` / `--shapes`.
-- In `E:\ASL_Game`: `core/synthesis3d.py` + `tools/export_avatar_anim.py` → `anim/<SIGN>.json`
-  (body-relative wrist targets + handshape + palmFace); `tools/encode_avatar_clips.py` (optional PNG→MP4).
-- Exported + rendered the **12 coffee-shop signs only** (COFFEE PLEASE THANK_YOU HELLO WANT YES YOU
-  LETTER_A/B/L/V/Y). Hospital signs are intentionally excluded — the collaborator owns those.
+- Wired Stage 3: `viewer.html` / `avatar_app.js` accept `?sign=SIGN_ID` and auto-loop. (pushed)
+- Built the **Stage 2 pipeline** under `scripts/` (runs on the venv that has mediapipe+opencv,
+  `E:/ASL_Game/.venv`):
+  - `scripts/oneeuro.py` — 1€ filter (pure math, no scipy), applied to the landmark stream
+    **before** keyframe extraction.
+  - `scripts/capture_landmarks.py` — MediaPipe **Tasks API** HandLandmarker+PoseLandmarker over a
+    video; normalizes every landmark into **shoulder-width body-frame units** (origin = shoulder
+    midpoint; x=subject-right, y=up, z=toward camera); flags occlusion (no hand / low shoulder
+    visibility / post-filter tracking snaps) instead of silently emitting bad data.
+  - `scripts/extract_keyframes.py` — wrist-speed segmentation → 3–4 keyframes (start / peak /
+    end / optional hold at a velocity reversal); carries occlusion flags forward.
+  - `scripts/schema_translator.py` — classifies handshape (tip-vs-knuckle reach → nearest preset
+    signature, kept in sync with `E:/ASL_Game/core/handshape_presets.py`), location anchor (wrist
+    height vs the signer's own face/torso refs), movement (path geometry → none/linear/arc/
+    circular/repeated), orientation; writes `schema/signs/<id>.json` in the prompt's schema format.
+    Monocular-uncertain fields (palm-normal sign, two-handed contact) are written through with a
+    `review.notes` warning, never guessed.
+- `calibration_log.md` (Stage 4 table, 12 coffee-shop signs) + `schema/signs/.gitkeep`.
+- `.gitignore`: ignore `footage/`, `landmarks/`, `keyframes/` (intermediates); `schema/signs/` IS committed.
+- **Smoke-tested** the whole `extract → translate` chain on SYNTHETIC landmarks (a fist circling):
+  got `ASL_S` / `chest` / `circular` correctly. No footage touched (respects the Stage 2 STOP).
 
 ## Current stage status
-- Stage 0 (confirm rig): **✅ complete** (RPM GLB)
-- Stage 1 (finger gaps): **🔄 in progress** — solved *procedurally* via adduction (not Blender weight-paint). Fists/flat hands close; thumb artifact fixed. Needs human sign-off.
-- Stage 2 (schema): **🔀 divergent** — procedural from recognition rules, not MediaPipe footage. Working.
-- Stage 3 (local preview): **✅ complete** — `viewer.html` via static server.
-- Stage 4 (calibration review): **⬜ not started** — do NOT self-approve sign quality.
+- Stage 0 (confirm rig): **✅** — Ready Player Me rig (67 joints, real finger chains). Blender not
+  installed, so the prompt's `inspect_rig.py` path is N/A; rig was confirmed via Three.js instead.
+- Stage 1 (finger gaps): **🔄** — solved procedurally (adduction in `avatar_app.js`), not Blender
+  weight-paint. Needs human sign-off in Stage 4.
+- Stage 2 (MediaPipe → schema): **✅ built + unit-smoke-tested / ⛔ not yet run on footage** (STOP).
+- Stage 3 (local preview): **✅** — `viewer.html` + `?sign=` + auto-loop.
+- Stage 4 (calibration review): **⬜** — do NOT self-approve sign quality.
 
 ## Last thing that ran
-- File modified: `D:\asl-synthesis\avatar_app.js` (thumb→bind; per-hand `palmFace`).
-- Command: `cd /d/asl-synthesis && node capture.mjs --probe COFFEE`
-- Output: `launched browser via msedge … COFFEE wrote 2 frames`. Top fist no longer juts a thumb; two
-  fists stack (top palm-down grinding over bottom palm-up). COFFEE is decent but not final.
+- Command: `E:/ASL_Game/.venv/Scripts/python.exe scratchpad/smoke.py`
+- Output: `KEYFRAMES: [('start',0),('peak',18),('end',35)]` then a schema with
+  `handshape ASL_S, anchor chest, movement circular (threshold 0.12)`. Passed.
 
-## Exactly what to do next
-1. **Resolve the repo (blocker).** `D:\asl-synthesis` is untracked. Decide: (a) new standalone GitHub
-   repo per the combined prompt's layout, or (b) fold into `msaad9632/ASL_Game`. Then `git init`
-   (if standalone) + `.gitignore` (`node_modules/`, `frames/`, `reference_clips/`, `*.log`,
-   `install_*.log`, `recap*.log`, `capture_all.log`) + commit + push.
-2. **Finish COFFEE in the LIVE preview** (combined prompt says no mp4-per-iteration):
-   `cd D:\asl-synthesis && npx http-server -p 5188 .` → open `http://localhost:5188/viewer.html`, pick
-   COFFEE. Tune in `E:\ASL_Game\core\synthesis3d.py`: `_NDOM_BASE` / `_dom_offset` (gap + x-align) and
-   `_PALM_FACE` / `_PALM_FACE_N` (COFFEE), then `python -m tools.export_avatar_anim COFFEE` and refresh.
-3. Eyeball all 12 handshapes in the preview — fists-together and the V spread especially. Curl tuning
-   is in `avatar_app.js` `TUNE` (`fingerCurlGain` 2.6, `fingerCurlSign` both +1). The flex axis is
-   **computed** from the rig — do not hardcode it.
-4. Wire the `?sign=SIGN_ID` query param into `viewer.html` (combined prompt Stage 3 asks for it).
-5. **STOP** → human review per Stage 4; log each sign in `calibration_log.md`. No self-approval.
+## Exactly what to do next (Stage 2 STOP — needs the human)
+1. **Record footage WE own** of the 12 coffee-shop signs (license rule: only our own video —
+   never WLASL/How2Sign/ASL Citizen). One clear front-facing clip per sign, ~2 s, good light,
+   hands fully in frame. Drop them in `footage/<SIGN_ID>.mp4` (gitignored).
+2. For each clip, run the pipeline (venv with mediapipe+opencv):
+   ```
+   py=E:/ASL_Game/.venv/Scripts/python.exe
+   $py scripts/capture_landmarks.py --video footage/COFFEE.mp4 --sign-id COFFEE --out landmarks/COFFEE.json
+   $py scripts/extract_keyframes.py --in landmarks/COFFEE.json --out keyframes/COFFEE.json
+   $py scripts/schema_translator.py --in keyframes/COFFEE.json --out schema/signs/coffee.json
+   ```
+3. **Adapter (small, TODO):** map `schema/signs/<id>.json` → the viewer's `anim/<SIGN>.json` so the
+   renderer animates the footage-calibrated parameters. (The viewer currently reads `anim/`.)
+4. Review each sign in the live preview (`npx http-server -p 5188 .` → `viewer.html?sign=COFFEE`);
+   log result in `calibration_log.md`. **STOP for human review — no self-approval.**
 
 ## Open questions / blockers
-- **`D:\asl-synthesis` is not on GitHub and has no remote** — collaborator cannot pull the avatar work
-  until a repo is chosen + created (no `gh` CLI here, so a human must create the GitHub repo).
-- **Pipeline divergence**: keep the procedural rules→schema path, or switch to the prompt's
-  MediaPipe-footage→schema path? Different schema formats — reconcile before scaling vocabulary.
-- `E:\ASL_Game` has ~14 uncommitted changes (the 3D exporter + the 2D synthesis pipeline). A prior note
-  says push `ASL_Game` to **branches, not main** (teammate shares it); the combined prompt says push to
-  **main**. Reconcile which applies to the avatar repo vs the recognition repo.
+- **No footage yet** — Stage 2 cannot RUN until we record the 12 signs ourselves. This is the gate.
+- **Blender not installed** — the prompt's Stage 0/1 Blender scripts can't run; we used the RPM rig
+  + procedural finger fix instead. Reinstall Blender only if we decide to weight-paint the mesh.
+- **Schema reconciliation**: Stage 2 emits the prompt's schema (`schema/signs/`); the renderer reads
+  `anim/`. Need the small adapter in step 3 (or teach the viewer to read `schema/signs/` directly).
 
 ## Watch out for
-- Headless render uses **system Edge** (`chromium.launch({ channel: 'msedge' })`). Playwright's bundled
-  Chromium only downloaded a 2.3 MB stub (side-by-side config error) — don't rely on it.
-- The **Bash working directory resets** between calls — always `cd /d/asl-synthesis` before `node capture.mjs`.
-- No Python 3D libs (pyrender/trimesh/pygltflib) installed — all 3D runs through Three.js.
-- Palm orientation is wrist-roll only (one DOF, approximate). Fine handshapes may need more.
-- mp4 capture exists (`capture.mjs` + `encode_avatar_clips.py`) but the combined prompt prefers the
-  **live preview loop** for iteration — use that, capture only for sharing/review.
+- Run the Python scripts with `E:/ASL_Game/.venv/Scripts/python.exe` (it has mediapipe+opencv+numpy;
+  scipy is NOT needed). Model files: `E:/ASL_Game/models/{hand_landmarker,pose_landmarker_lite}.task`.
+- `scripts/capture_landmarks.py` imports cv2+mediapipe at module top; `extract_keyframes.py` and
+  `schema_translator.py` are pure-numpy and can be imported/tested without a camera or footage.
+- Headless render still uses **system Edge** (`channel:'msedge'`); Bash cwd resets — `cd /d/asl-synthesis` first.
+- Handshape signatures in `schema_translator._SIG` MUST stay in sync with
+  `E:/ASL_Game/core/handshape_presets.py` (single source of truth).
