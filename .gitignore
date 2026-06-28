@@ -6,9 +6,22 @@ frames/
 reference_clips/
 
 # --- Stage 2 inputs + intermediates (regenerate from footage; schema/signs/ IS committed) ---
-footage/          # OUR-recorded clips only — never commit third-party / restricted video
-landmarks/        # capture_landmarks.py output
-keyframes/        # extract_keyframes.py output
+# NOTE: keep these patterns on their own lines — git does NOT support inline comments.
+# footage/ = OUR-recorded clips only; never commit video (license + repo size).
+footage/
+landmarks/
+keyframes/
+
+# --- Video, in case any lands outside footage/ (belt and suspenders) ---
+*.mp4
+*.mov
+*.avi
+*.webm
+*.mkv
+
+# --- Python caches ---
+__pycache__/
+*.pyc
 
 # --- Logs ---
 *.log
