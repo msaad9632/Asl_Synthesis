@@ -8,7 +8,7 @@ Scope: the **12 coffee-shop signs only**. Hospital signs belong to the collabora
 
 | Sign ID    | Reviewed | Approved | Reviewer | Notes |
 |------------|----------|----------|----------|-------|
-| COFFEE     | ⬜       | ⬜       |          | dominant S-hand circles over stationary S-hand |
+| COFFEE     | 🔄       | ⬜       | Saad     | footage pilot ran (take B, 6% flagged): confirms S-hand + chest. Movement: human kept **circular** (canonical); footage read flat 'repeated' — take artifact, re-record optional. Pending visual sign-off in preview. |
 | PLEASE     | ⬜       | ⬜       |          | flat hand, circle on chest |
 | THANK_YOU  | ⬜       | ⬜       |          | flat hand from chin outward |
 | HELLO      | ⬜       | ⬜       |          | flat hand salute from forehead |
