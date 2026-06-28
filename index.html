@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASL Synthesis Pipeline - Live Interactive Testbed</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+
+  <!-- Three.js Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD Interface Overlays -->
+  <div class="overlay">
+    
+    <!-- Top Header -->
+    <header class="interactive">
+      <h1>Procedural ASL Synthesis</h1>
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>Deterministic IK Core v1.0.0</span>
+      </div>
+    </header>
+
+    <!-- Left Controls Panel -->
+    <div class="left-panel interactive">
+      
+      <div class="panel-section">
+        <h2>Avatar / Rig Source</h2>
+        <div class="view-toggles">
+          <button id="toggle-canonical" class="toggle-btn active">Canonical Rig</button>
+          <button id="toggle-robot" class="toggle-btn">Robot Avatar</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2>Procedural Sign Library</h2>
+        <div class="sign-btn-group">
+          <button class="btn active" data-sign="CUP">
+            <span>Sign: CUP</span>
+            <span style="font-size: 11px; opacity: 0.6;">One-Handed Arc</span>
+          </button>
+          <button class="btn" data-sign="TEA">
+            <span>Sign: TEA</span>
+            <span style="font-size: 11px; opacity: 0.6;">Two-Handed Asymmetric</span>
+          </button>
+          <button class="btn" data-sign="COFFEE">
+            <span>Sign: COFFEE</span>
+            <span style="font-size: 11px; opacity: 0.6;">Two-Handed Stacked</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2>Active Trajectory Modulation</h2>
+        
+        <div class="slider-group">
+          <div class="slider-label">
+            <span>Duration (Seconds)</span>
+            <span class="slider-val" id="val-duration">1.0s</span>
+          </div>
+          <input type="range" id="param-duration" min="0.4" max="2.5" step="0.1" value="1.0">
+        </div>
+
+        <div id="param-oscillation-group" style="display: none; flex-direction: column; gap: 12px;">
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Oscillation Amplitude</span>
+              <span class="slider-val" id="val-amplitude">0.04m</span>
+            </div>
+            <input type="range" id="param-amplitude" min="0.01" max="0.12" step="0.01" value="0.04">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>Frequency (Hz)</span>
+              <span class="slider-val" id="val-frequency">3.0Hz</span>
+            </div>
+            <input type="range" id="param-frequency" min="1.0" max="6.0" step="0.2" value="3.0">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Feedback Panel -->
+    <div class="right-panel interactive">
+      
+      <div class="panel-section">
+        <h2>Active Joint Feedback</h2>
+        <div class="stats-card">
+          <div class="stat-row">
+            <span class="stat-label">Shoulder (Upper Arm) Roll</span>
+            <span class="stat-val" id="stat-shoulder-rot">0.00°</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Elbow (Forearm) Flexion</span>
+            <span class="stat-val" id="stat-elbow-rot">0.00°</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Wrist Position (X, Y, Z)</span>
+            <span class="stat-val" id="stat-wrist-pos">0.00, 0.00, 0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2>Target Rig Schema</h2>
+        <pre id="schema-display"></pre>
+      </div>
+
+      <div class="panel-section">
+        <h2>Mathematical Easing</h2>
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+          Currently applying sine-based biological easing formula:
+          <div style="font-family: monospace; color: var(--accent-gold); margin-top: 5px; font-size: 11px;">
+            E(t) = 0.5 * (1 - cos(π * t))
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Playback scrub overlay at the bottom -->
+    <div class="playback-controls interactive">
+      <button id="btn-play-pause" class="playback-btn">⏸</button>
+      <div class="time-slider-container">
+        <input type="range" id="time-scrubber" min="0" max="1" step="0.001" value="0">
+        <span class="time-display" id="scrubber-display">0.00 / 1.00s</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

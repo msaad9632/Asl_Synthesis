@@ -1,0 +1,20 @@
+# --- Node ---
+node_modules/
+
+# --- Generated render artifacts (regenerate via capture.mjs / encode_avatar_clips.py) ---
+frames/
+reference_clips/
+
+# --- Logs ---
+*.log
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# NOTE: committed on purpose — needed to run the viewer:
+#   readyplayer.me.glb           (the avatar)
+#   anim/*.json                  (per-sign animation tracks)
+#   avatar_app.js, viewer.html, capture.mjs, package.json, package-lock.json

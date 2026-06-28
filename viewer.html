@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASL Avatar — procedural signs</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0f131b; color: #d7dde8;
+               font-family: system-ui, sans-serif; overflow: hidden; }
+  #canvas-container { position: fixed; inset: 0; }
+  #ui { position: fixed; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px;
+        align-items: center; background: rgba(20,26,36,.75); padding: 8px 10px; border-radius: 8px; }
+  select, button { background: #1b2230; color: #d7dde8; border: 1px solid #313b4d;
+                   border-radius: 6px; padding: 5px 9px; font-size: 14px; }
+  button { cursor: pointer; } #status { font-size: 13px; opacity: .85; }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="ui">
+    <select id="sign"></select>
+    <button id="play">Play / Pause</button>
+    <span id="status">loading…</span>
+  </div>
+  <script type="module" src="/avatar_app.js"></script>
+</body>
+</html>

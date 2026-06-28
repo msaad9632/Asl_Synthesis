@@ -1,0 +1,291 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "format": "quaternion_xyzw",
+    "space": "bone_local",
+    "convention": "Flexion is positive rotation around local X-axis. Abduction/spread is rotation around local Y-axis. Thumb opposition involves combined Z and X rotations. All quaternions are unit quaternions [x, y, z, w]. Identity = [0, 0, 0, 1].",
+    "boneNames": [
+      "Thumb_Proximal", "Thumb_Intermediate", "Thumb_Distal",
+      "Index_Proximal", "Index_Intermediate", "Index_Distal",
+      "Middle_Proximal", "Middle_Intermediate", "Middle_Distal",
+      "Ring_Proximal", "Ring_Intermediate", "Ring_Distal",
+      "Pinky_Proximal", "Pinky_Intermediate", "Pinky_Distal"
+    ]
+  },
+
+  "handshapes": {
+
+    "FIST": {
+      "description": "ASL 'S' — all fingers tightly curled into the palm, thumb wraps across the front of the curled fingers with opposition.",
+      "bones": {
+        "Thumb_Proximal":      [0.331, 0.191, 0.462, 0.800],
+        "Thumb_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Thumb_Distal":        [0.259, 0.0, 0.0, 0.966],
+        "Index_Proximal":      [0.707, 0.0, 0.0, 0.707],
+        "Index_Intermediate":  [0.766, 0.0, 0.0, 0.643],
+        "Index_Distal":        [0.574, 0.0, 0.0, 0.819],
+        "Middle_Proximal":     [0.707, 0.0, 0.0, 0.707],
+        "Middle_Intermediate": [0.766, 0.0, 0.0, 0.643],
+        "Middle_Distal":       [0.574, 0.0, 0.0, 0.819],
+        "Ring_Proximal":       [0.707, 0.0, 0.0, 0.707],
+        "Ring_Intermediate":   [0.766, 0.0, 0.0, 0.643],
+        "Ring_Distal":         [0.574, 0.0, 0.0, 0.819],
+        "Pinky_Proximal":      [0.707, 0.0, 0.0, 0.707],
+        "Pinky_Intermediate":  [0.766, 0.0, 0.0, 0.643],
+        "Pinky_Distal":        [0.574, 0.0, 0.0, 0.819]
+      }
+    },
+
+    "OPEN_PALM": {
+      "description": "ASL '5' / 'B' — all fingers fully extended and spread apart, thumb abducted outward. Palm faces forward.",
+      "bones": {
+        "Thumb_Proximal":      [0.0, -0.259, -0.131, 0.957],
+        "Thumb_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Thumb_Distal":        [0.0, 0.0, 0.0, 1.0],
+        "Index_Proximal":      [0.044, -0.087, 0.0, 0.995],
+        "Index_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Index_Distal":        [0.0, 0.0, 0.0, 1.0],
+        "Middle_Proximal":     [0.044, 0.0, 0.0, 0.999],
+        "Middle_Intermediate": [0.0, 0.0, 0.0, 1.0],
+        "Middle_Distal":       [0.0, 0.0, 0.0, 1.0],
+        "Ring_Proximal":       [0.044, 0.087, 0.0, 0.995],
+        "Ring_Intermediate":   [0.0, 0.0, 0.0, 1.0],
+        "Ring_Distal":         [0.0, 0.0, 0.0, 1.0],
+        "Pinky_Proximal":      [0.044, 0.174, 0.0, 0.984],
+        "Pinky_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Pinky_Distal":        [0.0, 0.0, 0.0, 1.0]
+      }
+    },
+
+    "INDEX_POINT": {
+      "description": "ASL '1' — index finger extended straight, all other fingers curled into the palm, thumb wraps over middle finger.",
+      "bones": {
+        "Thumb_Proximal":      [0.331, 0.191, 0.462, 0.800],
+        "Thumb_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Thumb_Distal":        [0.259, 0.0, 0.0, 0.966],
+        "Index_Proximal":      [0.0, 0.0, 0.0, 1.0],
+        "Index_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Index_Distal":        [0.0, 0.0, 0.0, 1.0],
+        "Middle_Proximal":     [0.707, 0.0, 0.0, 0.707],
+        "Middle_Intermediate": [0.766, 0.0, 0.0, 0.643],
+        "Middle_Distal":       [0.574, 0.0, 0.0, 0.819],
+        "Ring_Proximal":       [0.707, 0.0, 0.0, 0.707],
+        "Ring_Intermediate":   [0.766, 0.0, 0.0, 0.643],
+        "Ring_Distal":         [0.574, 0.0, 0.0, 0.819],
+        "Pinky_Proximal":      [0.707, 0.0, 0.0, 0.707],
+        "Pinky_Intermediate":  [0.766, 0.0, 0.0, 0.643],
+        "Pinky_Distal":        [0.574, 0.0, 0.0, 0.819]
+      }
+    },
+
+    "C_SHAPE": {
+      "description": "ASL 'C' — all fingers and thumb curved uniformly to form the letter C. Fingers are moderately flexed with the thumb opposed and curved.",
+      "bones": {
+        "Thumb_Proximal":      [0.191, 0.131, 0.259, 0.938],
+        "Thumb_Intermediate":  [0.259, 0.0, 0.0, 0.966],
+        "Thumb_Distal":        [0.174, 0.0, 0.0, 0.985],
+        "Index_Proximal":      [0.383, 0.0, 0.0, 0.924],
+        "Index_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Index_Distal":        [0.259, 0.0, 0.0, 0.966],
+        "Middle_Proximal":     [0.383, 0.0, 0.0, 0.924],
+        "Middle_Intermediate": [0.383, 0.0, 0.0, 0.924],
+        "Middle_Distal":       [0.259, 0.0, 0.0, 0.966],
+        "Ring_Proximal":       [0.383, 0.0, 0.0, 0.924],
+        "Ring_Intermediate":   [0.383, 0.0, 0.0, 0.924],
+        "Ring_Distal":         [0.259, 0.0, 0.0, 0.966],
+        "Pinky_Proximal":      [0.383, 0.0, 0.0, 0.924],
+        "Pinky_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Pinky_Distal":        [0.259, 0.0, 0.0, 0.966]
+      }
+    },
+
+    "O_SHAPE": {
+      "description": "ASL 'O' — all fingertips curl forward to meet the opposed thumb tip, forming a circular opening. Stronger flexion than C_SHAPE.",
+      "bones": {
+        "Thumb_Proximal":      [0.259, 0.174, 0.383, 0.866],
+        "Thumb_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Thumb_Distal":        [0.259, 0.0, 0.0, 0.966],
+        "Index_Proximal":      [0.500, 0.0, 0.0, 0.866],
+        "Index_Intermediate":  [0.574, 0.0, 0.0, 0.819],
+        "Index_Distal":        [0.500, 0.0, 0.0, 0.866],
+        "Middle_Proximal":     [0.500, 0.0, 0.0, 0.866],
+        "Middle_Intermediate": [0.574, 0.0, 0.0, 0.819],
+        "Middle_Distal":       [0.500, 0.0, 0.0, 0.866],
+        "Ring_Proximal":       [0.500, 0.0, 0.0, 0.866],
+        "Ring_Intermediate":   [0.574, 0.0, 0.0, 0.819],
+        "Ring_Distal":         [0.500, 0.0, 0.0, 0.866],
+        "Pinky_Proximal":      [0.500, 0.0, 0.0, 0.866],
+        "Pinky_Intermediate":  [0.574, 0.0, 0.0, 0.819],
+        "Pinky_Distal":        [0.500, 0.0, 0.0, 0.866]
+      }
+    },
+
+    "FLAT_O": {
+      "description": "Flat O handshape — fingers are flattened and adducted together, touching the opposed thumb pad. Less curvature than O_SHAPE; fingertips converge flatly.",
+      "bones": {
+        "Thumb_Proximal":      [0.259, 0.174, 0.383, 0.866],
+        "Thumb_Intermediate":  [0.259, 0.0, 0.0, 0.966],
+        "Thumb_Distal":        [0.131, 0.0, 0.0, 0.991],
+        "Index_Proximal":      [0.500, 0.044, 0.0, 0.865],
+        "Index_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Index_Distal":        [0.174, 0.0, 0.0, 0.985],
+        "Middle_Proximal":     [0.500, 0.0, 0.0, 0.866],
+        "Middle_Intermediate": [0.383, 0.0, 0.0, 0.924],
+        "Middle_Distal":       [0.174, 0.0, 0.0, 0.985],
+        "Ring_Proximal":       [0.500, -0.044, 0.0, 0.865],
+        "Ring_Intermediate":   [0.383, 0.0, 0.0, 0.924],
+        "Ring_Distal":         [0.174, 0.0, 0.0, 0.985],
+        "Pinky_Proximal":      [0.500, -0.087, 0.0, 0.862],
+        "Pinky_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Pinky_Distal":        [0.174, 0.0, 0.0, 0.985]
+      }
+    },
+
+    "CLAW": {
+      "description": "ASL '5-claw' — all fingers spread wide apart and curved like a claw. Strong abduction at proximal joints with moderate flexion throughout.",
+      "bones": {
+        "Thumb_Proximal":      [0.131, -0.259, -0.131, 0.948],
+        "Thumb_Intermediate":  [0.259, 0.0, 0.0, 0.966],
+        "Thumb_Distal":        [0.259, 0.0, 0.0, 0.966],
+        "Index_Proximal":      [0.383, -0.174, 0.0, 0.907],
+        "Index_Intermediate":  [0.500, 0.0, 0.0, 0.866],
+        "Index_Distal":        [0.383, 0.0, 0.0, 0.924],
+        "Middle_Proximal":     [0.383, 0.0, 0.0, 0.924],
+        "Middle_Intermediate": [0.500, 0.0, 0.0, 0.866],
+        "Middle_Distal":       [0.383, 0.0, 0.0, 0.924],
+        "Ring_Proximal":       [0.383, 0.174, 0.0, 0.907],
+        "Ring_Intermediate":   [0.500, 0.0, 0.0, 0.866],
+        "Ring_Distal":         [0.383, 0.0, 0.0, 0.924],
+        "Pinky_Proximal":      [0.383, 0.259, 0.0, 0.886],
+        "Pinky_Intermediate":  [0.500, 0.0, 0.0, 0.866],
+        "Pinky_Distal":        [0.383, 0.0, 0.0, 0.924]
+      }
+    },
+
+    "L_SHAPE": {
+      "description": "ASL 'L' — index finger extended straight, thumb extended perpendicular (abducted) forming a 90° angle. All other fingers curled tightly.",
+      "bones": {
+        "Thumb_Proximal":      [0.0, -0.259, -0.131, 0.957],
+        "Thumb_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Thumb_Distal":        [0.0, 0.0, 0.0, 1.0],
+        "Index_Proximal":      [0.0, 0.0, 0.0, 1.0],
+        "Index_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Index_Distal":        [0.0, 0.0, 0.0, 1.0],
+        "Middle_Proximal":     [0.707, 0.0, 0.0, 0.707],
+        "Middle_Intermediate": [0.766, 0.0, 0.0, 0.643],
+        "Middle_Distal":       [0.574, 0.0, 0.0, 0.819],
+        "Ring_Proximal":       [0.707, 0.0, 0.0, 0.707],
+        "Ring_Intermediate":   [0.766, 0.0, 0.0, 0.643],
+        "Ring_Distal":         [0.574, 0.0, 0.0, 0.819],
+        "Pinky_Proximal":      [0.707, 0.0, 0.0, 0.707],
+        "Pinky_Intermediate":  [0.766, 0.0, 0.0, 0.643],
+        "Pinky_Distal":        [0.574, 0.0, 0.0, 0.819]
+      }
+    },
+
+    "Y_SHAPE": {
+      "description": "ASL 'Y' — thumb and pinky extended outward, index/middle/ring fingers curled tightly into the palm.",
+      "bones": {
+        "Thumb_Proximal":      [0.0, -0.259, -0.131, 0.957],
+        "Thumb_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Thumb_Distal":        [0.0, 0.0, 0.0, 1.0],
+        "Index_Proximal":      [0.707, 0.0, 0.0, 0.707],
+        "Index_Intermediate":  [0.766, 0.0, 0.0, 0.643],
+        "Index_Distal":        [0.574, 0.0, 0.0, 0.819],
+        "Middle_Proximal":     [0.707, 0.0, 0.0, 0.707],
+        "Middle_Intermediate": [0.766, 0.0, 0.0, 0.643],
+        "Middle_Distal":       [0.574, 0.0, 0.0, 0.819],
+        "Ring_Proximal":       [0.707, 0.0, 0.0, 0.707],
+        "Ring_Intermediate":   [0.766, 0.0, 0.0, 0.643],
+        "Ring_Distal":         [0.574, 0.0, 0.0, 0.819],
+        "Pinky_Proximal":      [0.0, 0.174, 0.0, 0.985],
+        "Pinky_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Pinky_Distal":        [0.0, 0.0, 0.0, 1.0]
+      }
+    },
+
+    "A_SHAPE": {
+      "description": "ASL 'A' — fist with thumb resting alongside the index finger (not wrapped across). Differs from FIST/'S' in thumb placement.",
+      "bones": {
+        "Thumb_Proximal":      [0.259, 0.087, 0.0, 0.962],
+        "Thumb_Intermediate":  [0.259, 0.0, 0.0, 0.966],
+        "Thumb_Distal":        [0.131, 0.0, 0.0, 0.991],
+        "Index_Proximal":      [0.707, 0.0, 0.0, 0.707],
+        "Index_Intermediate":  [0.766, 0.0, 0.0, 0.643],
+        "Index_Distal":        [0.574, 0.0, 0.0, 0.819],
+        "Middle_Proximal":     [0.707, 0.0, 0.0, 0.707],
+        "Middle_Intermediate": [0.766, 0.0, 0.0, 0.643],
+        "Middle_Distal":       [0.574, 0.0, 0.0, 0.819],
+        "Ring_Proximal":       [0.707, 0.0, 0.0, 0.707],
+        "Ring_Intermediate":   [0.766, 0.0, 0.0, 0.643],
+        "Ring_Distal":         [0.574, 0.0, 0.0, 0.819],
+        "Pinky_Proximal":      [0.707, 0.0, 0.0, 0.707],
+        "Pinky_Intermediate":  [0.766, 0.0, 0.0, 0.643],
+        "Pinky_Distal":        [0.574, 0.0, 0.0, 0.819]
+      }
+    },
+
+    "D_SHAPE": {
+      "description": "ASL 'D' — index finger extended straight upward, middle/ring/pinky curled with their tips touching the opposed thumb tip, forming a circle at the base.",
+      "bones": {
+        "Thumb_Proximal":      [0.259, 0.174, 0.383, 0.866],
+        "Thumb_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Thumb_Distal":        [0.259, 0.0, 0.0, 0.966],
+        "Index_Proximal":      [0.0, 0.0, 0.0, 1.0],
+        "Index_Intermediate":  [0.0, 0.0, 0.0, 1.0],
+        "Index_Distal":        [0.0, 0.0, 0.0, 1.0],
+        "Middle_Proximal":     [0.609, 0.0, 0.0, 0.793],
+        "Middle_Intermediate": [0.707, 0.0, 0.0, 0.707],
+        "Middle_Distal":       [0.500, 0.0, 0.0, 0.866],
+        "Ring_Proximal":       [0.609, 0.0, 0.0, 0.793],
+        "Ring_Intermediate":   [0.707, 0.0, 0.0, 0.707],
+        "Ring_Distal":         [0.500, 0.0, 0.0, 0.866],
+        "Pinky_Proximal":      [0.609, 0.0, 0.0, 0.793],
+        "Pinky_Intermediate":  [0.707, 0.0, 0.0, 0.707],
+        "Pinky_Distal":        [0.500, 0.0, 0.0, 0.866]
+      }
+    },
+
+    "CUP_HAND": {
+      "description": "Slightly curved open hand as used in the sign for 'CUP'. Fingers together (not spread) with gentle uniform curvature, like holding an invisible cup.",
+      "bones": {
+        "Thumb_Proximal":      [0.131, 0.087, 0.174, 0.976],
+        "Thumb_Intermediate":  [0.174, 0.0, 0.0, 0.985],
+        "Thumb_Distal":        [0.087, 0.0, 0.0, 0.996],
+        "Index_Proximal":      [0.259, 0.0, 0.0, 0.966],
+        "Index_Intermediate":  [0.259, 0.0, 0.0, 0.966],
+        "Index_Distal":        [0.174, 0.0, 0.0, 0.985],
+        "Middle_Proximal":     [0.259, 0.0, 0.0, 0.966],
+        "Middle_Intermediate": [0.259, 0.0, 0.0, 0.966],
+        "Middle_Distal":       [0.174, 0.0, 0.0, 0.985],
+        "Ring_Proximal":       [0.259, 0.0, 0.0, 0.966],
+        "Ring_Intermediate":   [0.259, 0.0, 0.0, 0.966],
+        "Ring_Distal":         [0.174, 0.0, 0.0, 0.985],
+        "Pinky_Proximal":      [0.259, 0.0, 0.0, 0.966],
+        "Pinky_Intermediate":  [0.259, 0.0, 0.0, 0.966],
+        "Pinky_Distal":        [0.174, 0.0, 0.0, 0.985]
+      }
+    },
+
+    "PINCH": {
+      "description": "Thumb and index finger pinching together (pads touching), middle/ring/pinky relaxed and slightly extended. Used in many classifier predicates.",
+      "bones": {
+        "Thumb_Proximal":      [0.259, 0.174, 0.383, 0.866],
+        "Thumb_Intermediate":  [0.383, 0.0, 0.0, 0.924],
+        "Thumb_Distal":        [0.259, 0.0, 0.0, 0.966],
+        "Index_Proximal":      [0.500, 0.0, 0.0, 0.866],
+        "Index_Intermediate":  [0.574, 0.0, 0.0, 0.819],
+        "Index_Distal":        [0.383, 0.0, 0.0, 0.924],
+        "Middle_Proximal":     [0.131, 0.0, 0.0, 0.991],
+        "Middle_Intermediate": [0.087, 0.0, 0.0, 0.996],
+        "Middle_Distal":       [0.044, 0.0, 0.0, 0.999],
+        "Ring_Proximal":       [0.131, 0.0, 0.0, 0.991],
+        "Ring_Intermediate":   [0.087, 0.0, 0.0, 0.996],
+        "Ring_Distal":         [0.044, 0.0, 0.0, 0.999],
+        "Pinky_Proximal":      [0.174, 0.0, 0.0, 0.985],
+        "Pinky_Intermediate":  [0.131, 0.0, 0.0, 0.991],
+        "Pinky_Distal":        [0.087, 0.0, 0.0, 0.996]
+      }
+    }
+  }
+}
