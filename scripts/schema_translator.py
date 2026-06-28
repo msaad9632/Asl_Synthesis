@@ -93,29 +93,33 @@ def classify_location(wrist: np.ndarray, body: dict | None) -> tuple[str, dict]:
 def classify_movement(path: np.ndarray) -> dict:
     p = np.asarray(path)
     if len(p) < 3:
-        return {"type": "none", "pivot": "wrist", "threshold": 0.0}
+        return {"type": "none", "pivot": "wrist", "threshold": 0.0, "_aspect": 0.0}
     seg = np.linalg.norm(np.diff(p, axis=0), axis=1)
     length = float(seg.sum())
     net = float(np.linalg.norm(p[-1] - p[0]))
     if length < 0.15:
-        return {"type": "none", "pivot": "wrist", "threshold": round(length, 3)}
+        return {"type": "none", "pivot": "wrist", "threshold": round(length, 3), "_aspect": 0.0}
 
     centered = p - p.mean(axis=0)
-    axis = np.linalg.svd(centered, full_matrices=False)[2][0]   # principal direction
-    proj = centered @ axis
+    U, S, Vt = np.linalg.svd(centered, full_matrices=False)
+    s1 = float(S[0]) or 1.0
+    aspect = float(S[1]) / s1            # ~1 = fills a 2D plane (loops); ~0 = thin 1D line
+    proj = centered @ Vt[0]              # extent along the principal axis
     reversals = int(np.sum(np.diff(np.sign(np.diff(proj))) != 0))
     straightness = net / length
 
-    if reversals >= 2:
-        mtype, thr = "repeated", round(float(proj.max() - proj.min()), 3)
-    elif straightness > 0.8:
+    # A circle projected onto one axis oscillates like a line — so check 2D-ness (aspect) FIRST.
+    if straightness > 0.8 and aspect < 0.2:
         mtype, thr = "linear", round(net, 3)
+    elif aspect >= 0.35 and (reversals >= 2 or net < 0.4 * length):
+        mtype, thr = "circular", round(float(np.linalg.norm(centered, axis=1).mean()), 3)
+    elif reversals >= 2:
+        mtype, thr = "repeated", round(float(proj.max() - proj.min()), 3)
     elif net < 0.35 * length:
-        radius = float(np.linalg.norm(centered, axis=1).mean())
-        mtype, thr = "circular", round(radius, 3)
+        mtype, thr = "circular", round(float(np.linalg.norm(centered, axis=1).mean()), 3)
     else:
         mtype, thr = "arc", round(length, 3)
-    return {"type": mtype, "pivot": "wrist", "threshold": thr}
+    return {"type": mtype, "pivot": "wrist", "threshold": thr, "_aspect": round(aspect, 3)}
 
 
 def classify_orientation(pose: np.ndarray) -> dict:
@@ -134,6 +138,7 @@ def translate(kf: dict) -> dict:
     handshape, hs_dbg = classify_handshape(pose)
     anchor, offset = classify_location(pose[W], kf.get("body_ref"))
     movement = classify_movement(np.asarray(kf["wrist_path"]))
+    aspect = movement.pop("_aspect", None)        # keep the schema's movement block clean
     orientation = classify_orientation(pose)
 
     notes = []
@@ -154,7 +159,7 @@ def translate(kf: dict) -> dict:
         "calibration_poses": {k["label"]: k["pose"] for k in keyframes},  # sparse, review-only
         "occlusion_flags": kf.get("occlusion_flags", []),
         "review": {"reviewed": False, "approved": False, "reviewer": "", "notes": "; ".join(notes)},
-        "_debug": {"handshape": hs_dbg},
+        "_debug": {"handshape": hs_dbg, "movement_aspect": aspect},
     }
 
 
