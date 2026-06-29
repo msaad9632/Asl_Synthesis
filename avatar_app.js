@@ -219,12 +219,18 @@ function setHand(side, shape, faceWorld = null) {
   if (faceWorld && palmN.dot(faceWorld) < 0) palmN.negate();
   const curlSign = sgn;
 
+  const measured = shape.measured ? shape.measured.flex : null;
   FINGERS.forEach((f, fi) => {
-    const close = 1 - shape.ext[fi];
+    // Curl amount: prefer the REAL measured footage curl; fall back to the 0/1 preset extension.
+    const close = measured ? measured[fi] : 1 - shape.ext[fi];
     const gain = TUNE.fingerCurlGain[f];
+    // Adduction (closing the bind-pose finger fan) scales WITH curl: a curled finger adducts fully to
+    // tuck into the palm; an extended finger keeps most of its natural fan so adjacent extended
+    // fingers stay slightly apart instead of collapsing parallel and visually overlapping.
+    const tog = (0.30 + 0.70 * close) * together;
     const j1 = bones[`${side}Hand${f}1`];
     const d = worldPos(bones[`${side}Hand${f}2`]).sub(worldPos(j1)).normalize();
-    const adduct = _signedAngle(d, midDir, palmN) * together + spread[fi];
+    const adduct = _signedAngle(d, midDir, palmN) * tog + spread[fi];
     j1.quaternion.copy(fingerBind[j1.uuid])
       .multiply(new THREE.Quaternion().setFromAxisAngle(_localAxis(j1, palmN), adduct))
       .multiply(new THREE.Quaternion().setFromAxisAngle(_localAxis(j1, curlAxis), close * gain * TUNE.jointWeights[0] * curlSign));
