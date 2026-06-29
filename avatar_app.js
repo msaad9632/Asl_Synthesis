@@ -274,7 +274,7 @@ function applyFrame(i) {
     setHand('Left', anim.ndom || anim.dom, null);
     if (faceN) orientPalm('Left', faceN);
   } else {
-    poseArm('Left', targetWorld('Spine', [-0.28, -0.95, 0.18]));   // rest the off-hand low at the side
+    poseArm('Left', targetWorld('Spine', [-0.55, -0.80, 0.10]));   // rest the off-hand at the side, away from body
     setHand('Left', { ext: [1, 1, 1, 1], thumb: true });
   }
 }
