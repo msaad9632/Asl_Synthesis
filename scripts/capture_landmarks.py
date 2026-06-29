@@ -39,6 +39,7 @@ from oneeuro import OneEuroVector
 # pose landmark indices (MediaPipe Pose, 33 pts)
 NOSE, MOUTH_L, MOUTH_R = 0, 9, 10
 L_SH, R_SH, L_HIP, R_HIP = 11, 12, 23, 24
+L_EL, R_EL, L_WR, R_WR = 13, 14, 15, 16   # elbows, wrists — for full-arm retargeting
 
 DEFAULT_HAND_MODEL = "E:/ASL_Game/models/hand_landmarker.task"
 DEFAULT_POSE_MODEL = "E:/ASL_Game/models/pose_landmarker_lite.task"
@@ -119,6 +120,15 @@ def capture(video: str, sign_id: str, hand_model: str, pose_model: str,
                 for name, i in (("nose", NOSE), ("mouth_l", MOUTH_L), ("mouth_r", MOUTH_R),
                                 ("l_sh", L_SH), ("r_sh", R_SH), ("l_hip", L_HIP), ("r_hip", R_HIP))
             }
+            # Full-arm joints for motion-capture retargeting (drive upper-arm along shoulder->elbow,
+            # forearm along elbow->wrist = the real human angles). Use pose WORLD landmarks (metric
+            # 3D, hip-centered) for well-proportioned depth, mapped to the avatar body frame
+            # (x=right, y=up, z=toward camera): world is x-right, y-down, z-away, so flip y and z.
+            if pres.pose_world_landmarks:
+                wp = pres.pose_world_landmarks[0]
+                rec["arms"] = {name: [round(wp[i].x, 4), round(-wp[i].y, 4), round(-wp[i].z, 4)]
+                               for name, i in (("l_sh", L_SH), ("l_el", L_EL), ("l_wr", L_WR),
+                                               ("r_sh", R_SH), ("r_el", R_EL), ("r_wr", R_WR))}
 
             pick = _dominant_hand(hres)
             if pick is None:

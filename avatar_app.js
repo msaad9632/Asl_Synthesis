@@ -141,6 +141,19 @@ function aimBone(bone, child, targetW) {
   bone.updateMatrixWorld(true);
 }
 
+// Retargeting: aim a bone so its child points along a world-space DIRECTION (not a point target).
+function aimBoneDir(bone, child, dirW) {
+  const bp = worldPos(bone);
+  aimBone(bone, child, bp.clone().addScaledVector(dirW, 1.0));
+}
+
+// Drive one arm directly from captured upper-arm + forearm directions (mocap retargeting).
+function retargetArm(side, uaDir, faDir) {
+  const arm = bones[side + 'Arm'], fore = bones[side + 'ForeArm'], hand = bones[side + 'Hand'];
+  aimBoneDir(arm, fore, bodyToWorld(uaDir));
+  aimBoneDir(fore, hand, bodyToWorld(faDir));
+}
+
 function poseArm(side, targetW) {
   const arm = bones[side + 'Arm'], fore = bones[side + 'ForeArm'], hand = bones[side + 'Hand'];
   const S = worldPos(arm);
@@ -269,6 +282,18 @@ function applyFrame(i) {
   const fr = anim.frames[i];
   const face = anim.palmFace ? bodyToWorld(anim.palmFace) : null;
   const faceN = anim.palmFaceN ? bodyToWorld(anim.palmFaceN) : face;   // non-dominant may differ
+
+  if (anim.mode === 'retarget') {
+    // Replay the real captured arm motion: aim both arms along the recorded joint directions, then
+    // shape the dominant hand from the measured finger curl. The signer is mirrored (their right
+    // hand is the avatar's, recorded as 'Right'); we drive avatar Right from r* and Left from l*.
+    retargetArm('Right', fr.rUA, fr.rFA);
+    retargetArm('Left', fr.lUA, fr.lFA);
+    setHand('Right', anim.dom, null);
+    if (face) orientPalm('Right', face);
+    setHand('Left', anim.ndom || { ext: [1, 1, 1, 1], thumb: 1.0 }, null);
+    return;
+  }
   // Order matters: IK first, then curl fingers (using the pre-roll knuckle axis), THEN roll the
   // wrist so the palm faces the target. Fingers ride along with the roll and stay closed correctly
   // regardless of the final palm orientation. This avoids the per-side / per-roll curl sign issues.
