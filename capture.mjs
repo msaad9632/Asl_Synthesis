@@ -56,7 +56,10 @@ async function main() {
   }
   if (!browser) throw new Error('no usable browser (Edge/Chrome/bundled all failed)');
   const page = await browser.newPage({ viewport: { width: SIZE, height: SIZE } });
-  page.on('console', (m) => { if (m.type() === 'error') console.log('  [page error]', m.text()); });
+  page.on('console', (m) => {
+    if (m.type() === 'error') console.log('  [page error]', m.text());
+    else if (m.text().startsWith('setHand')) console.log('  [dbg]', m.text());
+  });
   await page.goto(`http://localhost:${PORT}/viewer.html`);
   await page.waitForFunction(() => window.AvatarAPI && window.AvatarAPI.ready, null, { timeout: 30000 });
 

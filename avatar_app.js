@@ -19,8 +19,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const TUNE = {
   // Fingers flex about the hand's KNUCKLE LINE (index-MCP -> pinky-MCP), computed live from the rig
   // rather than guessed, so all four fingers curl in parallel toward the palm and never converge.
-  fingerCurlSign: { Left: 1, Right: 1 },        // toward the palm (axis is mirror-symmetric, so same sign)
-  fingerCurlGain: 2.6,                           // total radians across the 3 joints for a closed finger
+  fingerCurlSign: { Left: 1, Right: 1 },        // both +1: curl direction handled by bind-pose knuckle axis
+  fingerCurlGain: { Index: 2.4, Middle: 2.6, Ring: 2.8, Pinky: 2.9 },   // per-finger total radians
   jointWeights: [0.33, 0.42, 0.25],             // proximal / intermediate / distal share of the curl
   thumbCurlGain: 1.7,                            // thumb folds across the palm when not extended
 };
@@ -210,33 +210,38 @@ function setHand(side, shape, faceWorld = null) {
   // palmN (=knuckle×midDir); a fist must close toward the side the palm faces (faceWorld). So the
   // sign is sign(palmN·faceWorld): +1 for the palm-down top fist, -1 for the palm-UP lower fist whose
   // knuckle line is reversed by the roll (this is what made the lower hand splay open).
+  // palmN from cross(knuckle, midDir) can point either toward or away from the palm depending on
+  // the wrist roll. When the hand is rolled palm-up (COFFEE lower fist), BOTH palmN AND the knuckle
+  // axis flip together — so a constant curlSign produces opposite curl directions for palm-down vs
+  // palm-up hands. Fix: if palmN points away from faceWorld, negate BOTH palmN and curlAxis so that
+  // +rotation about the corrected axis always curls fingers toward the palm.
   const curlAxis = knuckle;
-  const curlSign = faceWorld ? (palmN.dot(faceWorld) >= 0 ? 1 : -1) : sgn;
+  if (faceWorld && palmN.dot(faceWorld) < 0) palmN.negate();
+  const curlSign = sgn;
 
   FINGERS.forEach((f, fi) => {
     const close = 1 - shape.ext[fi];
+    const gain = TUNE.fingerCurlGain[f];
     const j1 = bones[`${side}Hand${f}1`];
     const d = worldPos(bones[`${side}Hand${f}2`]).sub(worldPos(j1)).normalize();
-    const adduct = _signedAngle(d, midDir, palmN) * together + spread[fi];   // close the fan (+ optional splay)
-    // joint 1: adduct about the palm normal, then flex about the curl axis
+    const adduct = _signedAngle(d, midDir, palmN) * together + spread[fi];
     j1.quaternion.copy(fingerBind[j1.uuid])
       .multiply(new THREE.Quaternion().setFromAxisAngle(_localAxis(j1, palmN), adduct))
-      .multiply(new THREE.Quaternion().setFromAxisAngle(_localAxis(j1, curlAxis), close * TUNE.fingerCurlGain * TUNE.jointWeights[0] * curlSign));
-    // joints 2,3: flex only
+      .multiply(new THREE.Quaternion().setFromAxisAngle(_localAxis(j1, curlAxis), close * gain * TUNE.jointWeights[0] * curlSign));
     for (let j = 2; j <= 3; j++) {
       const b = bones[`${side}Hand${f}${j}`]; if (!b) continue;
       b.quaternion.copy(fingerBind[b.uuid])
-        .multiply(new THREE.Quaternion().setFromAxisAngle(_localAxis(b, curlAxis), close * TUNE.fingerCurlGain * TUNE.jointWeights[j - 1] * curlSign));
+        .multiply(new THREE.Quaternion().setFromAxisAngle(_localAxis(b, curlAxis), close * gain * TUNE.jointWeights[j - 1] * curlSign));
     }
   });
 
-  // Thumb: the opposed thumb does NOT flex about the finger knuckle axis (that made it jut out like a
-  // pointing finger). When tucked, fold it lightly toward the palm about the palm normal; otherwise
-  // leave it at its natural bind pose (alongside the hand) — good enough for A/L/Y/open.
-  if (!shape.thumb) {
+  // Thumb: graduated 0.0–1.0 control. 1.0 = fully at bind (extended), 0.0 = fully folded toward palm,
+  // 0.5 = alongside index (A shape). Backward compatible with old boolean (true→1.0, false→0.0).
+  const thumbExt = typeof shape.thumb === 'number' ? shape.thumb : (shape.thumb ? 1.0 : 0.0);
+  if (thumbExt < 1.0) {
     const t1 = bones[`${side}HandThumb1`];
     if (t1) t1.quaternion.copy(fingerBind[t1.uuid]).multiply(
-      new THREE.Quaternion().setFromAxisAngle(_localAxis(t1, palmN), TUNE.thumbCurlGain * sgn));
+      new THREE.Quaternion().setFromAxisAngle(_localAxis(t1, palmN), TUNE.thumbCurlGain * (1.0 - thumbExt) * curlSign));
   }
   bones[`${side}Hand`].updateMatrixWorld(true);
 }
@@ -258,13 +263,16 @@ function applyFrame(i) {
   const fr = anim.frames[i];
   const face = anim.palmFace ? bodyToWorld(anim.palmFace) : null;
   const faceN = anim.palmFaceN ? bodyToWorld(anim.palmFaceN) : face;   // non-dominant may differ
+  // Order matters: IK first, then curl fingers (using the pre-roll knuckle axis), THEN roll the
+  // wrist so the palm faces the target. Fingers ride along with the roll and stay closed correctly
+  // regardless of the final palm orientation. This avoids the per-side / per-roll curl sign issues.
   poseArm('Right', targetWorld(anim.anchorJoint, fr.dom));
+  setHand('Right', anim.dom, null);
   if (face) orientPalm('Right', face);
-  setHand('Right', anim.dom, face);
   if (anim.two_handed && fr.ndom) {
     poseArm('Left', targetWorld(anim.anchorJoint, fr.ndom));
+    setHand('Left', anim.ndom || anim.dom, null);
     if (faceN) orientPalm('Left', faceN);
-    setHand('Left', anim.ndom || anim.dom, faceN);
   } else {
     poseArm('Left', targetWorld('Spine', [-0.28, -0.95, 0.18]));   // rest the off-hand low at the side
     setHand('Left', { ext: [1, 1, 1, 1], thumb: true });
