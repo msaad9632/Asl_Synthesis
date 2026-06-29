@@ -118,6 +118,12 @@ async function main() {
       const b64 = dataUrl.replace(/^data:image\/png;base64,/, '');
       fs.writeFileSync(path.join(outDir, `f${String(i).padStart(4, '0')}.png`), Buffer.from(b64, 'base64'));
     }
+    if (args.includes('--side')) {   // both sides to catch arm-through-body clipping
+      for (const deg of [-65, 65]) {
+        const url = await page.evaluate(([k, d]) => window.AvatarAPI.orbitSnapshot(k, d), [idxs[0], deg]);
+        fs.writeFileSync(path.join(outDir, `side_${deg < 0 ? 'L' : 'R'}.png`), Buffer.from(url.replace(/^data:image\/png;base64,/, ''), 'base64'));
+      }
+    }
     console.log(`  ${name}: wrote ${idxs.length} frame(s) -> frames/${name}`);
   }
 

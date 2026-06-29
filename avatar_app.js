@@ -224,10 +224,10 @@ function setHand(side, shape, faceWorld = null) {
     // Curl amount: prefer the REAL measured footage curl; fall back to the 0/1 preset extension.
     const close = measured ? measured[fi] : 1 - shape.ext[fi];
     const gain = TUNE.fingerCurlGain[f];
-    // Adduction (closing the bind-pose finger fan) scales WITH curl: a curled finger adducts fully to
-    // tuck into the palm; an extended finger keeps most of its natural fan so adjacent extended
-    // fingers stay slightly apart instead of collapsing parallel and visually overlapping.
-    const tog = (0.30 + 0.70 * close) * together;
+    // Full adduction closes the bind-pose fan so a flat hand (B / THANK_YOU) has its fingers TOGETHER
+    // with no gaps. Fingers that must separate (V index/middle, Y pinky) get an explicit `spread`
+    // below that overrides the closure.
+    const tog = together;
     const j1 = bones[`${side}Hand${f}1`];
     const d = worldPos(bones[`${side}Hand${f}2`]).sub(worldPos(j1)).normalize();
     const adduct = _signedAngle(d, midDir, palmN) * tog + spread[fi];
@@ -280,7 +280,7 @@ function applyFrame(i) {
     setHand('Left', anim.ndom || anim.dom, null);
     if (faceN) orientPalm('Left', faceN);
   } else {
-    poseArm('Left', targetWorld('Spine', [-0.55, -0.80, 0.10]));   // rest the off-hand at the side, away from body
+    poseArm('Left', targetWorld('LeftArm', [-0.55, -1.15, 0.45]));   // off-arm hangs OUT to the side, clear of the torso
     setHand('Left', { ext: [1, 1, 1, 1], thumb: true });
   }
 }
@@ -298,6 +298,20 @@ const AvatarAPI = {
   frameCount() { return anim ? anim.frames.length : 0; },
   showFrame(i) { applyFrame(i); renderer.render(scene, camera); },
   snapshot() { return renderer.domElement.toDataURL('image/png'); },
+  // Orbit the camera `deg` around the body (0 = front, 90 = left side) and snapshot — for catching
+  // depth clipping (arm through torso) that a front view hides.
+  orbitSnapshot(i, deg) {
+    applyFrame(i);
+    const t = controls.target.clone();
+    const r = Math.hypot(camera.position.x - t.x, camera.position.z - t.z);
+    const rad = deg * Math.PI / 180;
+    camera.position.set(t.x + r * Math.sin(rad), camera.position.y, t.z + r * Math.cos(rad));
+    camera.lookAt(t);
+    renderer.render(scene, camera);
+    const url = this.snapshot();
+    frameCamera();   // restore
+    return url;
+  },
   // Close-up of the RIGHT hand from a 3/4 side angle so the finger-curl profile is visible.
   // The flex axis is computed from the rig; `sign` (curl direction) and `gain` are the tunables.
   handCal(sign, gain = 2.7, shape = { ext: [0, 0, 0, 0], thumb: false }) {
