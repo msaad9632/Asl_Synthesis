@@ -70,14 +70,18 @@ procedural work is not thrown away — Stage 2 feeds it.
   separate circular (2D loop) from repeated (thin line).
 
 ## Current stage status
-- Stage 0 (confirm rig): **✅** — Ready Player Me rig (67 joints, real finger chains). Blender not
-  installed, so the prompt's `inspect_rig.py` path is N/A; rig was confirmed via Three.js instead.
-- Stage 1 (finger gaps): **🔄** — solved procedurally (adduction in `avatar_app.js`), not Blender
-  weight-paint. Needs human sign-off in Stage 4.
-- Stage 2 (MediaPipe → schema): **✅ built + run on COFFEE footage** (pilot). 11 other signs await footage.
+- Stage 0 (confirm rig): **✅** — Ready Player Me rig (67 joints, real finger chains).
+- Stage 1 (finger correction via per-finger bone tuning): **✅** — solved procedurally:
+  - Per-finger curl gain (Index:2.4, Middle:2.6, Ring:2.8, Pinky:2.9)
+  - Graduated thumb control (0.0-1.0: A=0.5 alongside, B=0.3 tucked, fist=0.0 folded)
+  - setHand runs BEFORE orientPalm (fixes palm-up curl reversal on Left hand)
+  - NOT blend shapes (RPM avatar has 0 hand morph targets — only mouthOpen/mouthSmile)
+  - NOT weight painting (no Blender)
+- Stage 2 (MediaPipe footage -> schema): **✅** — COFFEE pilot done. 11 signs await footage.
+- Stage 2b (batch self-record): **✅** — `scripts/batch_capture.py` + `scripts/batch_export.py`.
+  Webcam -> full pipeline in one session. No external datasets (license rule).
 - Stage 3 (local preview): **✅** — `viewer.html` + `?sign=` + auto-loop.
-- Stage 4 (calibration review): **🔄** — COFFEE logged as in-progress, pending Saad's visual sign-off
-  in the preview. Do NOT self-approve sign quality.
+- Stage 4 (calibration review): **🔄** — all 12 signs need human sign-off. No self-approval.
 
 ## Last thing that ran
 - Commands (real COFFEE footage, take B):
@@ -92,22 +96,19 @@ procedural work is not thrown away — Stage 2 feeds it.
   `movement footage='repeated' vs authored='circular'` → human kept circular. Avatar plays COFFEE.
 
 ## Exactly what to do next
-1. **COFFEE visual sign-off (pending).** `npx http-server -p 5188 .` → `viewer.html?sign=COFFEE`.
-   Saad confirms the avatar's COFFEE looks right → flip `calibration_log.md` COFFEE row to ✅ approved.
-2. **Process the remaining 11 coffee-shop signs** once footage exists. Record each (license rule:
-   our own video only — never WLASL/How2Sign/ASL Citizen), drop `footage/<SIGN>.mp4`, then per sign:
+1. **Visual sign-off on all 12 signs.** `npx http-server -p 5188 .` -> `viewer.html?sign=COFFEE`.
+   Cycle through each sign, confirm handshape/movement/orientation look right, log in
+   `calibration_log.md`. No self-approval.
+2. **Record + process the remaining 11 signs** using the batch tools:
    ```
-   py=E:/ASL_Game/.venv/Scripts/python.exe          # run from D:/asl-synthesis
-   $py scripts/capture_landmarks.py --video footage/PLEASE.mp4 --sign-id PLEASE --out landmarks/PLEASE.json
-   $py scripts/extract_keyframes.py --in landmarks/PLEASE.json --out keyframes/PLEASE.json
-   $py scripts/schema_translator.py --in keyframes/PLEASE.json --out schema/signs/please.json
-   (cd E:/ASL_Game) $py -m tools.schema_to_anim --in D:/asl-synthesis/schema/signs/please.json
+   cd D:\asl-synthesis
+   E:/ASL_Game/.venv/Scripts/python.exe scripts/batch_capture.py PLEASE THANK_YOU HELLO WANT YES YOU LETTER_A LETTER_B LETTER_L LETTER_V LETTER_Y
+   E:/ASL_Game/.venv/Scripts/python.exe scripts/batch_export.py --all
    ```
-   Then review in the preview + log it. **No self-approval.**
-3. **Optional fidelity upgrade:** the adapter currently renders the *authored* sign and only reports
-   footage divergences. To make footage actually *tune* geometry, thread the measured
-   `movement.threshold` / `location.offset` into `core/synthesis3d.py` (radius/amplitude/anchor).
-   Saad chose to keep canonical motion for now, so this is deferred, not required.
+   Then review each in the live preview. License rule: only self-recorded footage.
+3. **If a sign's footage-derived schema diverges from the authored one** (the adapter prints a
+   calibration report), decide per-sign whether to keep the authored parameters or tune them.
+   Currently the procedural engine renders canonical motion; footage calibrates but doesn't override.
 
 ## Open questions / blockers
 - **11 signs await footage** — only COFFEE has been recorded + processed. Not a blocker for COFFEE.

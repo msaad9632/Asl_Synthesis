@@ -72,7 +72,13 @@ Update this every session before pushing. Use ⬜ Not started / 🔄 In progress
 
 
 
-StageWhat it doesStatus0Find + verify rigged avatar with finger bones⬜1Fix finger gaps / weight paint on confirmed rig⬜2MediaPipe keyframe extractor → schema⬜3Three.js local preview server⬜4Human calibration review loop⬜
+Stage | What it does | Status
+0 | Find + verify rigged avatar with finger bones | ✅ Done (RPM GLB, 67 joints)
+1 | Finger correction via per-finger bone tuning (NOT blend shapes — avatar has none) | ✅ Done
+2 | MediaPipe keyframe extractor -> schema | ✅ Done (COFFEE pilot)
+2b | Batch self-record tool (batch_capture.py + batch_export.py) | ✅ Done
+3 | Three.js local preview server | ✅ Done (viewer.html + ?sign= + auto-loop)
+4 | Human calibration review loop | 🔄 In progress
 
 
 Hard rules — read before doing anything
