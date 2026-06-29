@@ -52,7 +52,7 @@ def record_clip(sign_id: str, duration: float, cam_index: int, fps: float = 25.0
         if not ok:
             break
 
-        display = frame.copy()
+        display = cv2.flip(frame, 1)       # mirror the preview (selfie-mode) — recording stays raw
         if not recording:
             cv2.putText(display, f"Next: {sign_id}", (30, 60),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 255), 3)
