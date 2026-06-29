@@ -38,7 +38,8 @@ function serve() {
 async function main() {
   const args = process.argv.slice(2);
   const probe = args.includes('--probe');
-  let names = args.filter((a) => !a.startsWith('--'));
+  const mIdx = args.indexOf('--model');
+  let names = args.filter((a, i) => !a.startsWith('--') && !(mIdx >= 0 && i === mIdx + 1));   // skip --model's value
   if (!names.length) names = JSON.parse(fs.readFileSync(path.join(ROOT, 'anim/index.json'))).signs;
 
   const server = serve();
@@ -60,7 +61,9 @@ async function main() {
     if (m.type() === 'error') console.log('  [page error]', m.text());
     else if (m.text().startsWith('setHand')) console.log('  [dbg]', m.text());
   });
-  await page.goto(`http://localhost:${PORT}/viewer.html`);
+  const mi = args.indexOf('--model');
+  const modelQ = mi >= 0 && args[mi + 1] ? `?model=${args[mi + 1]}` : '';
+  await page.goto(`http://localhost:${PORT}/viewer.html${modelQ}`);
   await page.waitForFunction(() => window.AvatarAPI && window.AvatarAPI.ready, null, { timeout: 30000 });
 
   if (args.includes('--handcal')) {

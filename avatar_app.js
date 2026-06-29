@@ -51,12 +51,33 @@ const fingerBind = {};               // uuid -> bind quaternion (fingers only; a
 const armLen = { Left: {}, Right: {} };
 let avatarReady = false;
 
+// Normalize skeleton names across rigs: Mixamo prefixes every bone with "mixamorig:", Ready Player
+// Me does not. Stripping it makes a Mixamo character (Xbot etc.) a drop-in for the RPM-named code.
+function normBone(name) { return name.replace(/^mixamorig[:_]?/i, ''); }
+
+const MODEL_FILE = { cartoon: '/cartoon.glb' };
+const _model = (new URLSearchParams(location.search).get('model') || '').toLowerCase();
+const GLB = MODEL_FILE[_model] || '/readyplayer.me.glb';
+
 const loader = new GLTFLoader();
-loader.load('/readyplayer.me.glb', (gltf) => {
+loader.load(GLB, (gltf) => {
   const model = gltf.scene;
   scene.add(model);
-  model.traverse((o) => { if (o.isBone) bones[o.name] = o; });
+  // Map skeleton nodes by normalized name. Prefer real Bones, but some rigs don't flag isBone on
+  // traverse, so also accept named Object3D joints (mesh names like Wolf3D_/Alpha_ don't collide).
+  model.traverse((o) => { if (o.isBone) bones[normBone(o.name)] = o; });
+  if (!bones.Head) model.traverse((o) => { if (o.name && !o.isMesh && !bones[normBone(o.name)]) bones[normBone(o.name)] = o; });
   model.updateMatrixWorld(true);
+  // Mixamo rigs are authored in centimeters (~100-200 units tall) and may face -Z. Normalize so the
+  // body is ~2 units tall and faces +Z (toward the camera), matching the RPM setup the camera expects.
+  const box = new THREE.Box3().setFromObject(model);
+  const h = box.max.y - box.min.y;
+  if (h > 10) { const s = 1.8 / h; model.scale.setScalar(s); }
+  model.updateMatrixWorld(true);
+  if (bones.Hips || _model) {   // Mixamo has a Hips root; face the camera
+    const headZ = bones.Head ? worldPos(bones.Head).z : 0;
+    if (headZ < 0) { model.rotation.y += Math.PI; model.updateMatrixWorld(true); }
+  }
 
   for (const side of ['Left', 'Right']) {
     const arm = bones[side + 'Arm'], fore = bones[side + 'ForeArm'], hand = bones[side + 'Hand'];
@@ -81,9 +102,13 @@ function worldPos(obj) { const v = new THREE.Vector3(); obj.getWorldPosition(v);
 
 function frameCamera() {
   const chest = worldPos(bones.Spine2 || bones.Spine1 || bones.Spine);
-  const sw = worldPos(bones.LeftArm).distanceTo(worldPos(bones.RightArm)) || 0.3;
-  const target = chest.clone().add(new THREE.Vector3(0, 0.02, 0));
-  camera.position.copy(target).add(new THREE.Vector3(0, 0.05, sw * 4.2));
+  // Frame by torso height (Head->Hips) so it works across rigs of different proportions/scale,
+  // rather than shoulder width which varies by build.
+  const head = bones.Head ? worldPos(bones.Head) : chest.clone().add(new THREE.Vector3(0, 0.3, 0));
+  const hips = bones.Hips ? worldPos(bones.Hips) : chest;
+  const torso = Math.max(head.distanceTo(hips), 0.2);
+  const target = chest.clone().add(new THREE.Vector3(0, torso * 0.25, 0));   // bias up toward the head
+  camera.position.copy(target).add(new THREE.Vector3(0, 0, torso * 4.2));
   controls.target.copy(target);
   controls.update();
 }
@@ -383,6 +408,17 @@ fetch('/anim/index.json').then((r) => r.json()).then((idx) => {
 });
 
 document.getElementById('play')?.addEventListener('click', () => { playing = !playing; });
+
+// Model switch: reload with ?model= so the chosen avatar GLB loads (keeps the current sign).
+const modelSel = document.getElementById('model');
+if (modelSel) {
+  modelSel.value = _model;
+  modelSel.addEventListener('change', () => {
+    const qs = new URLSearchParams(location.search);
+    if (modelSel.value) qs.set('model', modelSel.value); else qs.delete('model');
+    location.search = qs.toString();
+  });
+}
 
 function loop(t) {
   requestAnimationFrame(loop);
